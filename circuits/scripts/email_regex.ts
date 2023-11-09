@@ -57,32 +57,13 @@ async function main() {
   const dkimResult = await verifyDKIMSignature(Buffer.from(rawEmail));
   
   console.log('dkimResult.body', dkimResult.body)
-  const selectorBuffer = Buffer.from(STRING_PRESELECTOR);
-  const nameIndex = dkimResult.body.indexOf(selectorBuffer) + selectorBuffer.length;
-  console.log('nameIndex', nameIndex)
   const body = Array.from(dkimResult.body).map((x) => x.toString());
-  const slicedBody = body.slice(nameIndex - 20, nameIndex + 180);
-  console.log('slicedBody', slicedBody.map((byte) => String.fromCharCode(Number(byte))))
-
-  // const govEmailVerifierInputs = generateGovEmailVerifierCircuitInputs({
-  //   rsaSignature: dkimResult.signature,
-  //   rsaPublicKey: dkimResult.publicKey,
-  //   body: dkimResult.body,
-  //   bodyHash: dkimResult.bodyHash,
-  //   message: dkimResult.message,
-  //   ethereumAddress: "0x00000000000000000000",
-  // });
-
-  // console.log('gov email circuit inputs: ', govEmailVerifierInputs)
-
+  console.log('body.length', body.length)
   const inputs = {
-    // msg: govEmailVerifierInputs.in_body_padded
-    msg: slicedBody
+    msg: body
   }
-
-  console.log('inputs.msg.length', inputs.msg.length)
-
   console.log('Regex circuit inputs: ', inputs)
+  console.log('inputs.msg.length', inputs.msg.length)
 
   const { proof, publicSignals } = await groth16.fullProve(
     inputs,

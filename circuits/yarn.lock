@@ -391,6 +391,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.6.3.tgz#5b763b321cd3b80f6b8dde7a37e1a77ff9358dd9"
   integrity sha512-HksnYH4Ljr4VQgEy2lTStbCKv/P590tmPe5HqOnv9Gprffgv5WXAY+Y5Gqniu0GGqeTCUdBnzC3QSrzPkBkAMA==
 
+"@zk-email/circuits@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-3.2.0.tgz#3419e5a5d0e0d5559948d1108a0de5c08b04351e"
+  integrity sha512-cUHQDwpRIlPAvdgZx/zaRQ1zQNYsf2FmvALSw932kWAeoayYT4ZYXn5/SNWw3dHMRjuz43fTj8Dl4pEbf/0E9A==
+  dependencies:
+    "@zk-email/zk-regex-circom" "^1.1.1"
+
 "@zk-email/helpers@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@zk-email/helpers/-/helpers-2.0.0.tgz#2643764745306e0e73d2b0b45d54ad7a1f7fcd30"
@@ -407,7 +414,7 @@
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
 
-"@zk-email/zk-regex-circom@^1.2.1":
+"@zk-email/zk-regex-circom@^1.1.1", "@zk-email/zk-regex-circom@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.2.1.tgz#ea1adc832e8d855c9568abc438567a524a0ac962"
   integrity sha512-+AoH5PdKZxatTWfwYWGkpuQ0xGaax6FwBHvdYXugkPDdgtJQYyxhItQtM79bo0djCmuwEK2X1rnYlFHBDClQeA==

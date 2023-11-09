@@ -15,4 +15,4 @@ template RegexWithCheck(n) {
     name_reveal <== email_regex_reveal;
 }
 
-component main = RegexWithCheck(200);
+component main = RegexWithCheck(2190);
