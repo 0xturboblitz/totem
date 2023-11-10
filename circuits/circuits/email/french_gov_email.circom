@@ -4,13 +4,14 @@ include "../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr_
 include "../../node_modules/@zk-email/circuits/email-verifier.circom";
 // include "./components/twitter_reset_regex.circom";
 include "./short_signed_email_regex.circom";
+include "../../node_modules/circomlib/circuits/poseidon.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
 // TODO: split into header and body
-template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n, k, pack_size, expose_from, expose_to) {
+template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n, k, pack_size, expose_from, expose_to, max_name_length) {
     assert(expose_from < 2); // 1 if we should expose the from, 0 if we should not
     assert(expose_to == 0); // 1 if we should expose the to, 0 if we should not: due to hotmail restrictions, we force-disable this
 
@@ -26,6 +27,7 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     signal input precomputed_sha[32];
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
+    signal input salt;
 
     signal output pubkey_hash;
 
@@ -76,7 +78,19 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     signal is_found_name <== IsZero()(name_regex_out);
     is_found_name === 0;
 
-    reveal_name_packed <== name_regex_reveal;
+    component shifter = ShiftAndPackMaskedStr(max_regex_search, max_name_length, 31);
+    shifter.in <== name_regex_reveal;
+    shifter.shift <== name_idx;
+
+    let packed_name_length = 1;
+    signal poseidon_input[packed_name_length + 1];
+    for(var i = 0; i < packed_name_length; i++) {
+        poseidon_input[i] <== shifter.out[i];
+    }
+    poseidon_input[packed_name_length] <== salt;
+
+    // Reveal the Poseidon hash of the name (packed_name_length field elements) and the salt (1 field element)
+    signal output commitment <== Poseidon(packed_name_length + 1)(poseidon_input);
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
@@ -91,4 +105,4 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
 // * pack_size = 31 is the number of bytes that can fit into a 255ish bit signal (can increase later)
 // * expose_from = 0 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
-component main { public [ address ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 0, 0);
+component main { public [ address ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 0, 0, 31);
