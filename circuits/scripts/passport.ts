@@ -40,6 +40,7 @@ async function main() {
       BigInt(32)
     ),
     address: "0x9D392187c08fc28A86e1354aD63C70897165b982",
+    salt: "0x13bb9dbfe6f8a52eb0850e3ccbaba7281b463db1a7583676a6e8247d8ab3a47c"
   }
 
   console.log('Passport circuit inputs: ', inputs)
@@ -53,9 +54,7 @@ async function main() {
   console.log('proof generated');
   console.log('proof:', proof);
   console.log('public signals:', publicSignals);
-
-  const revealChars = publicSignals.slice(0, 83).map((byte: string) => String.fromCharCode(parseInt(byte, 10))).join('');
-  console.log('reveal chars', revealChars);
+  console.log('commitment', publicSignals[0]);
 
   const vKey = JSON.parse(fs.readFileSync("build/passportTotem_vk.json").toString());
   const verified = await groth16.verify(
