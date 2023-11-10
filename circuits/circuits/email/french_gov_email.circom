@@ -1,7 +1,7 @@
 pragma circom 2.1.5;
 
-include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
-include "@zk-email/circuits/email-verifier.circom";
+include "../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
+include "../../node_modules/@zk-email/circuits/email-verifier.circom";
 // include "./components/twitter_reset_regex.circom";
 include "./short_signed_email_regex.circom";
 
@@ -10,7 +10,7 @@ include "./short_signed_email_regex.circom";
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
 // TODO: split into header and body
-template GovEmailVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expose_from, expose_to) {
+template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n, k, pack_size, expose_from, expose_to) {
     assert(expose_from < 2); // 1 if we should expose the from, 0 if we should not
     assert(expose_to == 0); // 1 if we should expose the to, 0 if we should not: due to hotmail restrictions, we force-disable this
 
@@ -58,25 +58,29 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, exp
         reveal_email_from_packed <== ShiftAndPackMaskedStr(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
     }
 
+    signal regex_input[max_regex_search];
+    for(var i = 0; i < max_regex_search; i++){
+        regex_input[i] <== in_body_padded[i];
+    }
 
     // Body reveal vars
-    var max_twitter_len = 21;
-    signal input twitter_username_idx;
-    signal output reveal_twitter_packed[max_body_bytes];
+    var max_name_len = 21;
+    signal input name_idx;
+    signal output reveal_name_packed[max_regex_search];
 
-    // TWITTER REGEX: 328,044 constraints
+    // NAME REGEX: 328,044 constraints
     // This computes the regex states on each character in the email body. For new emails, this is the
     // section that you want to swap out via using the zk-regex library.
-    signal (twitter_regex_out, twitter_regex_reveal[max_body_bytes]) <== ShortSignedEmailRegex(max_body_bytes)(in_body_padded);
+    signal (name_regex_out, name_regex_reveal[max_regex_search]) <== ShortSignedEmailRegex(max_regex_search)(regex_input);
     // This ensures we found a match at least once (i.e. match count is not zero)
-    signal is_found_twitter <== IsZero()(twitter_regex_out);
-    is_found_twitter === 0;
+    signal is_found_name <== IsZero()(name_regex_out);
+    is_found_name === 0;
 
-		reveal_twitter_packed <== twitter_regex_reveal;
+    reveal_name_packed <== name_regex_reveal;
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
-// This makes pubkey_hash and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
+// This makes pubkey_hash and reveal_name_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
 // TODO: Update deployed contract and zkey to reflect this number, as it the currently deployed contract uses 7
 // Args:
@@ -87,4 +91,4 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, exp
 // * pack_size = 31 is the number of bytes that can fit into a 255ish bit signal (can increase later)
 // * expose_from = 0 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
-component main { public [ address ] } = GovEmailVerifier(1024, 1536, 121, 17, 31, 0, 0);
+component main { public [ address ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 0, 0);
