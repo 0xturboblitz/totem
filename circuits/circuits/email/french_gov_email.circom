@@ -2,7 +2,6 @@ pragma circom 2.1.5;
 
 include "../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "../../node_modules/@zk-email/circuits/email-verifier.circom";
-// include "./components/twitter_reset_regex.circom";
 include "./short_signed_email_regex.circom";
 include "../../node_modules/circomlib/circuits/poseidon.circom";
 
@@ -10,7 +9,6 @@ include "../../node_modules/circomlib/circuits/poseidon.circom";
 // This is because the number is chunked into k pack_size of n bits each
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
-// TODO: split into header and body
 template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n, k, pack_size, expose_from, expose_to, max_name_length) {
     assert(expose_from < 2); // 1 if we should expose the from, 0 if we should not
     assert(expose_to == 0); // 1 if we should expose the to, 0 if we should not: due to hotmail restrictions, we force-disable this
@@ -29,8 +27,6 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     signal input in_body_len_padded_bytes;
     signal input salt;
 
-    signal output pubkey_hash;
-
     component EV = EmailVerifier(max_header_bytes, max_body_bytes, n, k, 0);
     EV.in_padded <== in_padded;
     EV.pubkey <== pubkey;
@@ -40,9 +36,6 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     EV.precomputed_sha <== precomputed_sha;
     EV.in_body_padded <== in_body_padded;
     EV.in_body_len_padded_bytes <== in_body_len_padded_bytes;
-
-    pubkey_hash <== EV.pubkey_hash;
-
 
     // FROM HEADER REGEX: 736,553 constraints
     // This extracts the from email, and the precise regex format can be viewed in the README
@@ -68,11 +61,8 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     // Body reveal vars
     var max_name_len = 21;
     signal input name_idx;
-    signal output reveal_name_packed[max_regex_search];
 
     // NAME REGEX: 328,044 constraints
-    // This computes the regex states on each character in the email body. For new emails, this is the
-    // section that you want to swap out via using the zk-regex library.
     signal (name_regex_out, name_regex_reveal[max_regex_search]) <== ShortSignedEmailRegex(max_regex_search)(regex_input);
     // This ensures we found a match at least once (i.e. match count is not zero)
     signal is_found_name <== IsZero()(name_regex_out);
@@ -82,7 +72,7 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     shifter.in <== name_regex_reveal;
     shifter.shift <== name_idx;
 
-    let packed_name_length = 1;
+    var packed_name_length = 1;
     signal poseidon_input[packed_name_length + 1];
     for(var i = 0; i < packed_name_length; i++) {
         poseidon_input[i] <== shifter.out[i];
@@ -93,16 +83,15 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     signal output commitment <== Poseidon(packed_name_length + 1)(poseidon_input);
 }
 
-// In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
-// This makes pubkey_hash and reveal_name_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-// TODO: Update deployed contract and zkey to reflect this number, as it the currently deployed contract uses 7
 // Args:
 // * max_header_bytes = 1024 is the max number of bytes in the header
-// * max_body_bytes = 1536 is the max number of bytes in the body after precomputed slice
+// * max_body_bytes = 2176 is the max number of bytes in the body after precomputed slice
+// * max_regex_search = 300 is the number of bytes the regex looks for the pattern.
 // * n = 121 is the number of bits in each chunk of the pubkey (RSA parameter)
 // * k = 17 is the number of chunks in the pubkey (RSA parameter). Note 121 * 17 > 2048.
 // * pack_size = 31 is the number of bytes that can fit into a 255ish bit signal (can increase later)
 // * expose_from = 0 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
-component main { public [ address ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 0, 0, 31);
+// * max_name_length = 31 is the maximum length of the name
+component main { public [ address, pubkey ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 1, 0, 31);

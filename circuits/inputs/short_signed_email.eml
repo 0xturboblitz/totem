@@ -1,0 +1,88 @@
+Delivered-To: florent.tavernier@gmail.com
+Received: by 2002:a05:600c:da:0:0:0:0 with SMTP id u26csp206886wmm;
+        Sat, 30 Apr 2022 04:00:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzcC7E/rG0N25aOI2A/EtgfM7eamneiWZ0TOZ6HfTnGkqW68Saey7Sc3fmo8AbXFiB3Y7Hp
+X-Received: by 2002:a05:600c:2113:b0:38e:bc71:2b0 with SMTP id u19-20020a05600c211300b0038ebc7102b0mr3055581wml.153.1651316407705;
+        Sat, 30 Apr 2022 04:00:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1651316407; cv=none;
+        d=google.com; s=arc-20160816;
+        b=x9vLhSDivkOrJTcs8V64N+JFd5CSqCgUW5Ht4LceQKJlSXkRwjRTfcnWws7hq9loxs
+         KwWEUIphWY7RelkiZb+02okLFNFjtua+uucXKTD408H1Pm6W5JAFLExUZuk0+ZBxrkZj
+         OCvZop4WwKyHEFGMHAlmDkwCJI+CjS655HtCTje/m+GNgnnDnFDbaGeWvU3lRZ/AA72p
+         Bt8H0gdRrrmijNfF0quWLq/m4HwI4cQ4P2e+TeDukc7T3cE9ZjKt0CIHEFWuUmKtXVEn
+         10twBJSpaiy8OI6Ai3pLEOywSjhbJTq+99QP7SjvsbNvHnWigWXRZbab1q59rFLkpju9
+         heVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=content-transfer-encoding:mime-version:subject:message-id:to:from
+         :date:dkim-signature;
+        bh=9GqPGZsZdgNGwjNHge7gX+KDaI/iO5k7b1OJV40bjns=;
+        b=ZP35WneeR7X7jhV6rHPMjjW1RbtgBghXkPlP3EwGtUQMKs214mK99yA5u/Vd7y7F8k
+         t8rFgfxQaV4G34IwXtU6QhbIx+LW5siDbgj9ssysyqiabzdb/9tS3VA9tgXlZVscLib8
+         yjpWtuZDnLUTg/kGHKK33WxoLUOII2XnBvEOsMkPtViiarWAzcaWRedWQH7PrcwWUadZ
+         HsHekwRwugBolVM38KxsdxgRXBAivDEIkqvJwV4HE4rRo0Z3Kl4Jg3fiKBnLMQf0UxOQ
+         qDPXpbeSe9vyHBe+mJlkiPrdGXSyIyHPoOX3pfI1Cw6blwR0O3qglc+7Kqoj1/kkivxe
+         Lh7Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@dgfip.finances.gouv.fr header.s=pf2-appli header.b=MCUvc7KK;
+       spf=pass (google.com: domain of ne_pas_repondre@dgfip.finances.gouv.fr designates 145.242.11.67 as permitted sender) smtp.mailfrom=ne_pas_repondre@dgfip.finances.gouv.fr;
+       dmarc=pass (p=NONE sp=REJECT dis=NONE) header.from=dgfip.finances.gouv.fr
+Return-Path: <ne_pas_repondre@dgfip.finances.gouv.fr>
+Received: from pf2pusi003.dgfip.finances.gouv.fr (pf2pusi003-9.dgfip.finances.gouv.fr. [145.242.11.67])
+        by mx.google.com with ESMTPS id k12-20020adfc70c000000b00207a4545c2fsi8129528wrg.196.2022.04.30.04.00.07
+        for <florent.tavernier@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 30 Apr 2022 04:00:07 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ne_pas_repondre@dgfip.finances.gouv.fr designates 145.242.11.67 as permitted sender) client-ip=145.242.11.67;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@dgfip.finances.gouv.fr header.s=pf2-appli header.b=MCUvc7KK;
+       spf=pass (google.com: domain of ne_pas_repondre@dgfip.finances.gouv.fr designates 145.242.11.67 as permitted sender) smtp.mailfrom=ne_pas_repondre@dgfip.finances.gouv.fr;
+       dmarc=pass (p=NONE sp=REJECT dis=NONE) header.from=dgfip.finances.gouv.fr
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+	d=dgfip.finances.gouv.fr; s=pf2-appli; t=1651316406;
+	bh=sg5sJI2cwINwvxvD8PrhCfw81pXeW55AcW/o9WR/3KQ=;
+	h=Date:From:To:Subject;
+	b=MCUvc7KKX5J9b0dEVupF9OBGz4KSGYcutS0firMBTlJnb4kaaWafwj0tBx9p1gFoB
+	 rQI/xLimA1NRAECdVdeyyy8nXZmfpfSFc0s2S67rKNkgUbaMpRA+NzB/4wKCp4mbd5
+	 BYWaRFK7tbaBaA6SuW0Rdg6h6mCSVz+gbj+p3IcS5/hTiN6llE2OmNO2m8Crh9KdnS
+	 eLQcbZWWj4GenL9spG6o/b5p0n5gAqr5/jQUcIqeAxWO2W16LGSEUi/zZc1iUHw6e1
+	 LfbB40Nak6L1Eg/yxZNrPYFE+D56p7ma39uX5WS+N6frxJOF6HlmoAYhLmk1ilMebK
+	 wHq8bkLnD9n6g==
+Date: Sat, 30 Apr 2022 13:00:06 +0200 (CEST)
+From: =?UTF-8?Q?Direction_g=C3=A9n=C3=A9rale_des_Finances_publiques?= <ne_pas_repondre@dgfip.finances.gouv.fr>
+To: florent.tavernier@gmail.com
+Message-ID: <2102325320.308570.1651316406801.JavaMail.tomcat@anppusa003.anpp>
+Subject: =?UTF-8?Q?Impots.gouv.fr_-_Activation_de_l?=
+ =?UTF-8?Q?'acc=C3=A8s_=C3=A0_votre_espace_particulier?=
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html><html lang=3D'fr'><head><title>Impots.gouv.fr - Activation d=
+e l'acc=C3=A8s =C3=A0 votre espace particulier</title><meta charset=3D'UTF-=
+8'/><meta name=3D'format-detection' content=3D'telephone=3Dno'/></head><bod=
+y>Bonjour FLORENT TAVERNIER&nbsp;(num=C3=A9ro fiscal : 302*******241),<br/>=
+<p>Pour activer votre nouvel acc=C3=A8s, veuillez cliquer sur le lien ci-de=
+ssous (ou le recopier dans votre navigateur).</p><br/><a href=3D"https://cf=
+spart.impots.gouv.fr/monprofil-webapp/noAuth/validationEmail?idLienValidati=
+on=3D8s3k1XBKtGu71JzAozrASM0zFbvIrA850nHUNdWMlDY%3D&TimeStamp=3DNbgfEFzjZFB=
+SBxQji%2F3lKsrRzitG1UmF%2B2DZ4lZQLg8%3D&org=3D86RgtLZ2V42WSEC12U1qbQ%3D%3D"=
+ title=3D"Authentification">https://cfspart.impots.gouv.fr/monprofil-webapp=
+/noAuth/validationEmail?idLienValidation=3D8s3k1XBKtGu71JzAozrASM0zFbvIrA85=
+0nHUNdWMlDY%3D&TimeStamp=3DNbgfEFzjZFBSBxQji%2F3lKsrRzitG1UmF%2B2DZ4lZQLg8%=
+3D&org=3D86RgtLZ2V42WSEC12U1qbQ%3D%3D</a><p><b>Attention, ce lien est valab=
+le pour une dur=C3=A9e de 8 heures.</b> Au del=C3=A0, vous devrez recommenc=
+er la proc=C3=A9dure sur le site <a href=3D"https://cfspart.impots.gouv.fr"=
+  target=3D"_blank">impots.gouv.fr</a> ou via l'application mobile impots.g=
+ouv.</p><p>En vous remerciant de votre confiance,</p><p>La direction g=C3=
+=A9n=C3=A9rale des Finances publiques</p><div style=3D"color:#A80000"><stro=
+ng style=3D"color:#A80000;">Recommandations</strong><br/>Pour votre s&eacut=
+e;curit&eacute; :<ul><li>ne r=C3=A9pondez jamais =C3=A0 un courriel vous de=
+mandant votre num=C3=A9ro de carte bancaire ou une copie de vos pi=C3=A8ces=
+ d=E2=80=99identit=C3=A9 ;</li><li>v=C3=A9rifiez toujours l=E2=80=99adresse=
+ de l=E2=80=99exp=C3=A9diteur des messages avant de les ouvrir. Pour les me=
+ssages de la DGFiP, la partie droite de l=E2=80=99adresse doit =C3=AAtre =
+=C3=A9gale =C3=A0 @dgfip.finances.gouv.fr. Sinon, il ne s=E2=80=99agit pas =
+de la DGFiP.</li><li><a href=3D"https://www.impots.gouv.fr/portail/securite=
+-informatique-soyez-vigilants">acc=C3=A9dez aux derni=C3=A8res recommandati=
+ons</a> en mati=C3=A8re de s=C3=A9curit=C3=A9 informatique.</li></ul></body=
+></html>

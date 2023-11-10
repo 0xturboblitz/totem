@@ -1,12 +1,11 @@
 import { hash, toUnsignedByte } from '../utils/computeEContent'
 import { DataHash, PassportData } from '../utils/types'
 import { genSampleData } from '../utils/sampleData'
-import { arraysAreEqual, bytesToBigDecimal, formatAndConcatenateDataHashes, formatMrz, splitToWords } from '../utils/utils'
+import { bytesToBigDecimal, formatAndConcatenateDataHashes, formatMrz, splitToWords } from '../utils/utils'
 import { groth16 } from 'snarkjs'
 import fs from 'fs';
-// import passportData from '../inputs/passportData.json'
 
-async function main() {
+export async function provePassport() {
   let passportData;
 
   if (fs.existsSync('inputs/passportData.json')) {
@@ -43,7 +42,7 @@ async function main() {
     salt: "0x13bb9dbfe6f8a52eb0850e3ccbaba7281b463db1a7583676a6e8247d8ab3a47c"
   }
 
-  console.log('Passport circuit inputs: ', inputs)
+  // console.log('Passport circuit inputs: ', inputs)
 
   const { proof, publicSignals } = await groth16.fullProve(
     inputs,
@@ -51,10 +50,9 @@ async function main() {
     "build/passportTotem_final.zkey"
   )
 
-  console.log('proof generated');
-  console.log('proof:', proof);
-  console.log('public signals:', publicSignals);
-  console.log('commitment', publicSignals[0]);
+  console.log('Passport proof generated');
+  // console.log('proof:', proof);
+  // console.log('public signals:', publicSignals);
 
   const vKey = JSON.parse(fs.readFileSync("build/passportTotem_vk.json").toString());
   const verified = await groth16.verify(
@@ -64,14 +62,19 @@ async function main() {
   )
 
   if (verified) {
-    console.log('Proof is verified');
+    console.log('Passport proof verified');
     fs.writeFileSync('outputs/proof.json', JSON.stringify(proof));
     fs.writeFileSync('outputs/publicSignals.json', JSON.stringify(publicSignals));
   } else {
-    console.log('Proof is not verified');
+    console.log('Passport proof verification failed');
   }
 
-  process.exit();
+  return publicSignals[0]
 }
 
-main()
+if(require.main === module) {
+  provePassport().then((commitment) => {
+    console.log('commitment', commitment);
+    process.exit();
+  })
+}
