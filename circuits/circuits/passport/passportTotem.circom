@@ -35,7 +35,7 @@ template PassportTotem(max_name_length, n, k) {
     is_found_passport === 0;
 
     // pack the name padded with 0s (max_name_length bytes) into chunk_number field elements,
-    var packed_name_length = 2; // ceil(n/31)
+    var packed_name_length = 1; // ceil(n/31)
     signal name_packed[packed_name_length] <== PackBytes(max_name_length, packed_name_length, 31)(passport_regex_reveal);
 
     signal poseidon_input[packed_name_length + 1];
@@ -45,8 +45,7 @@ template PassportTotem(max_name_length, n, k) {
     poseidon_input[packed_name_length] <== salt;
 
     // Reveal the Poseidon hash of the name (packed_name_length field elements) and the salt (1 field element)
-    signal output commitment;
-    commitment <== Poseidon(packed_name_length + 1)(poseidon_input);
+    signal output commitment <== Poseidon(packed_name_length + 1)(poseidon_input);
 }
 
-component main { public [ address, pubkey, signature ] } = PassportTotem(32, 64, 32);
+component main { public [ address, pubkey, signature ] } = PassportTotem(31, 64, 32);

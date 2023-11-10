@@ -66,6 +66,7 @@ export function generateGovEmailVerifierCircuitInputs({
   return {
     ...emailVerifierInputs,
     name_idx: finalIndex.toString(),
+    salt: "0x13bb9dbfe6f8a52eb0850e3ccbaba7281b463db1a7583676a6e8247d8ab3a47c",
     address,
   };
 }
