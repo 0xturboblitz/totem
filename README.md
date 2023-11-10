@@ -20,7 +20,7 @@ Totem uses [zk-regex](https://github.com/zkemail/zk-regex) to look for substring
 Then, it uses Poseidon to commit to the data, adding a secret salt as a blinding factor.
 If the results of the regex searches match, the commitments should match too.
 
-![image](https://github.com/0xturboblitz/totem/assets/27727946/63636035-b532-49b9-a870-4a3dcee37e92)
+<img width="100%" alt="Diagram" src="https://github.com/0xturboblitz/totem/assets/62038140/1f768d59-42d7-4edc-bafe-2fdadfd00a59">
 
 ### Run it
 
