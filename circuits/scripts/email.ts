@@ -4,10 +4,11 @@ import path from 'path';
 import { Uint8ArrayToCharArray, bytesToBigInt, fromHex } from "@zk-email/helpers/dist/binaryFormat";
 import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 import { verifyDKIMSignature, DKIMVerificationResult } from "@zk-email/helpers/dist/dkim";
+const wasm_tester = require("../node_modules/circom_tester").wasm;
 
 export const STRING_PRESELECTOR = "Bonjour ";
 export const MAX_HEADER_PADDED_BYTES = 1024; // NOTE: this must be the same as the first arg in the email in main args circom
-export const MAX_BODY_PADDED_BYTES = 1536; // NOTE: this must be the same as the arg to sha the remainder number of bytes in the email in main args circom
+export const MAX_BODY_PADDED_BYTES = 2176; // NOTE: this must be the same as the arg to sha the remainder number of bytes in the email in main args circom
 
 export function generateGovEmailVerifierCircuitInputs({
   rsaSignature,
@@ -35,15 +36,27 @@ export function generateGovEmailVerifierCircuitInputs({
     maxBodyLength: MAX_BODY_PADDED_BYTES,
   });
 
-  const bodyRemaining = emailVerifierInputs.in_body_padded.map(c => Number(c)); // Char array to Uint8Array
-  const selectorBuffer = Buffer.from(STRING_PRESELECTOR);
-  const nameIndex = Buffer.from(bodyRemaining).indexOf(selectorBuffer) + selectorBuffer.length;
-  console.log('nameIndex', nameIndex)
+  // const bodyRemaining = emailVerifierInputs.in_body_padded.map(c => Number(c)); // Char array to Uint8Array
+  // const selectorBuffer = Buffer.from(STRING_PRESELECTOR);
+  // const nameIndex = Buffer.from(bodyRemaining).indexOf(selectorBuffer) + selectorBuffer.length;
+  // console.log('nameIndex', nameIndex)
   const address = bytesToBigInt(fromHex(ethereumAddress)).toString();
+
+  const string = emailVerifierInputs.in_body_padded.map((byte: string) => String.fromCharCode(parseInt(byte, 10))).join('');
+  const LAST_NAME_REGEX = "Bonjour [A-Za-z]+ ([A-Za-z]+)+";
+  const lastName = new RegExp(LAST_NAME_REGEX).exec(string);
+  console.log('lastName', lastName)
+  const indexOfNameInString = lastName[0].indexOf(lastName[1]);
+  console.log('lastName.index', lastName.index)
+  console.log('indexOfNameInString', indexOfNameInString)
+  const finalIndex = lastName.index + indexOfNameInString;
+  console.log('finalIndex', finalIndex)
+
+  // content=3D'telephone=3Dno'/></head><bod=rny>Bonjour FLORENT TAVERNIER&nbsp;(num=C3=A9ro fiscal : 302*******241),<br/>=rn<p>Pour activer votre nouvel acc=C3=A
 
   return {
     ...emailVerifierInputs,
-    name_idx: nameIndex.toString(),
+    name_idx: finalIndex.toString(),
     address,
   };
 }
@@ -66,6 +79,14 @@ async function main() {
   });
 
   console.log('gov email circuit inputs: ', govEmailVerifierInputs)
+
+
+  // const circuit = await wasm_tester(path.join(__dirname, "../circuits/email/french_gov_email.circom"), {include: ["node_modules"]});  
+  // const w = await circuit.calculateWitness(govEmailVerifierInputs);
+  // console.log('witness calculated', w);
+  // await circuit.checkConstraints(w);
+  // console.log('finished checking constraints');
+  // fs.writeFileSync('outputs/govEmailVerifierInputs.json', JSON.stringify(govEmailVerifierInputs));
 
   const { proof, publicSignals } = await groth16.fullProve(
     govEmailVerifierInputs,
