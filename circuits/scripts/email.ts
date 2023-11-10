@@ -1,14 +1,9 @@
 import { groth16 } from "snarkjs";
 import fs from "fs";
 import path from "path";
-import {
-  bytesToBigInt,
-  fromHex,
-} from "@zk-email/helpers/dist/binaryFormat";
+import { bytesToBigInt, fromHex } from "@zk-email/helpers/dist/binaryFormat";
 import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
-import {
-  verifyDKIMSignature,
-} from "@zk-email/helpers/dist/dkim";
+import { verifyDKIMSignature } from "@zk-email/helpers/dist/dkim";
 const wasm_tester = require("../node_modules/circom_tester").wasm;
 
 export const STRING_PRESELECTOR = "Bonjour ";
@@ -80,13 +75,16 @@ export async function proveEmail() {
     ethereumAddress: "0x00000000000000000000",
   });
 
-  // console.log("gov email circuit inputs:", govEmailVerifierInputs);
-  // const circuit = await wasm_tester(path.join(__dirname, "../circuits/email/french_gov_email.circom"), {include: ["node_modules"]});
+  console.log("gov email circuit inputs:", govEmailVerifierInputs);
+
+  // const circuit = await wasm_tester(
+  //   path.join(__dirname, "../circuits/email/french_gov_email.circom"),
+  //   { include: ["node_modules"] },
+  // );
   // const w = await circuit.calculateWitness(govEmailVerifierInputs);
-  // console.log('witness calculated', w);
+  // console.log("witness calculated", w);
   // await circuit.checkConstraints(w);
-  // console.log('finished checking constraints');
-  // fs.writeFileSync('outputs/govEmailVerifierInputs.json', JSON.stringify(govEmailVerifierInputs));
+  // console.log("finished checking constraints");
 
   const { proof, publicSignals } = await groth16.fullProve(
     govEmailVerifierInputs,
@@ -121,9 +119,9 @@ export async function proveEmail() {
   return publicSignals[0];
 }
 
-if(require.main === module) {
+if (require.main === module) {
   proveEmail().then((commitment) => {
-    console.log('commitment', commitment);
+    console.log("commitment", commitment);
     process.exit();
-  })
+  });
 }

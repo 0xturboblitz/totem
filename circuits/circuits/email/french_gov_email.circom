@@ -25,6 +25,7 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
     signal input precomputed_sha[32];
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
+
     signal input salt;
 
     component EV = EmailVerifier(max_header_bytes, max_body_bytes, n, k, 0);
@@ -94,4 +95,4 @@ template GovEmailVerifier(max_header_bytes, max_body_bytes, max_regex_search, n,
 // * expose_from = 0 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
 // * max_name_length = 31 is the maximum length of the name
-component main { public [ address, pubkey ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 1, 0, 31);
+component main { public [ address, pubkey ] } = GovEmailVerifier(1024, 2176, 300, 121, 17, 31, 0, 0, 31);
