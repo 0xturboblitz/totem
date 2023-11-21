@@ -1,4 +1,4 @@
-# 🗿Totem
+# 🗿Totem🗿
 
 Zero-knowledge identity tools like [zk-email](https://github.com/zkemail/) and [proof of passport](https://github.com/zk-passport/proof-of-passport) allow users to prove aspects of their identity while only selectively disclosing private information.
 
