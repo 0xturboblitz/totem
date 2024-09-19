@@ -1,6 +1,6 @@
 # 🗿Totem🗿
 
-Zero-knowledge identity tools like [zk-email](https://github.com/zkemail/) and [proof of passport](https://github.com/zk-passport/proof-of-passport) allow users to prove aspects of their identity while only selectively disclosing private information.
+Zero-knowledge identity tools like [zk-email](https://github.com/zkemail/) and [OpenPassport](https://github.com/zk-passport/openpassport) allow users to prove aspects of their identity while only selectively disclosing private information.
 
 However, on their own, most of these tools aren't convincing. One can steal someone else's passport or hack their email to impersonate them.
 
